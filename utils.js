@@ -1,4 +1,5 @@
 const process = require( "process" );
+const os = require( "os" );
 const path = require( "path" );
 const child = require( "child_process" );
 
@@ -59,34 +60,48 @@ function GET_DEFUALT_GATEWAY() {
 // ? (239.255.255.250) at 1:0:5e:7f:ff:fa on en0 ifscope permanent [ethernet]
 function ARP_GET_LAN_IPS() {
 	try {
-		let output = child.spawnSync( 'arp', [ '-a' ] , { encoding: 'utf8' } );
-		output = output.stdout.trim();
-		const lines = output.split( "\n" );
+
+		const interfaces = Object.keys( os.networkInterfaces() );
+		console.log( "Interfaces ==== " );
+		console.log( interfaces );
+
 		let results = [];
-		for ( let i = 0; i < lines.length; ++i ) {
-			let items = lines[ i ].split( " " );
-			items = items.filter( x => x !== "" );
-			items = items.map( x => x.replace( /\s/g , "" ) );
-			// //console.log( items );
-			// if ( !items[ i ][ 1 ] ) { console.log( "no 1 ??" ); continue; }
-			// if ( !items[ i ][ 3 ] ) { console.log( "no 3 ??" ); continue; }
-			// if ( items[ i ][ 3 ] === "(incomplete)" ) { console.log( "incomplete ??" ); continue; }
-			// if ( !items[ i ][ 5 ] ) { console.log( "no 5 ??" ); continue; }
-			let ip = items[ 1 ].split( "(" );
-			if ( !ip ) { continue; }
-			if ( !ip[ 1 ] ) { continue; }
-			ip = ip[ 1 ].split( ")" );
-			if ( !ip ) { continue; }
-			if ( !ip[ 0 ] ) { continue; }
-			let mac_prefix = items[ 3 ].split( ":" );
-			mac_prefix = `${ mac_prefix[ 0 ] }:${ mac_prefix[ 1 ] }:${ mac_prefix[ 2 ] }`
-			results.push({
-				ip: ip[ 0 ] ,
-				mac_address: items[ 3 ] ,
-				mac_prefix: mac_prefix ,
-				device: items[ 5 ]
-			});
+
+		for( let j = 0; j < interfaces.length; ++j ) {
+			let output = child.spawnSync( 'arp', [ '-i' , interfaces[ j ] , '-a' ] , { encoding: 'utf8' } );
+			output = output.stdout.trim();
+			const lines = output.split( "\n" );
+			for ( let i = 0; i < lines.length; ++i ) {
+				let items = lines[ i ].split( " " );
+				items = items.filter( x => x !== "" );
+				items = items.map( x => x.replace( /\s/g , "" ) );
+				// //console.log( items );
+				// if ( !items[ i ][ 1 ] ) { console.log( "no 1 ??" ); continue; }
+				// if ( !items[ i ][ 3 ] ) { console.log( "no 3 ??" ); continue; }
+				// if ( items[ i ][ 3 ] === "(incomplete)" ) { console.log( "incomplete ??" ); continue; }
+				// if ( !items[ i ][ 5 ] ) { console.log( "no 5 ??" ); continue; }
+
+				// if ( !items ) { continue; }
+				// if ( !items[ 1 ] ) { continue; }
+				if ( !!items[ 1 ] === false ) { continue; }
+
+				let ip = items[ 1 ].split( "(" );
+				if ( !ip ) { continue; }
+				if ( !ip[ 1 ] ) { continue; }
+				ip = ip[ 1 ].split( ")" );
+				if ( !ip ) { continue; }
+				if ( !ip[ 0 ] ) { continue; }
+				let mac_prefix = items[ 3 ].split( ":" );
+				mac_prefix = `${ mac_prefix[ 0 ] }:${ mac_prefix[ 1 ] }:${ mac_prefix[ 2 ] }`
+				results.push({
+					ip: ip[ 0 ] ,
+					mac_address: items[ 3 ] ,
+					mac_prefix: mac_prefix ,
+					device: items[ 5 ]
+				});
+			}
 		}
+
 		return results;
 	}
 	catch( error ) { console.log( error ); return false; }
@@ -108,6 +123,8 @@ const GOOGLE_MAC_ADDRESS_PREFIXES = [
 function GET_GOOGLE_HOME_IPS() {
 	try {
 		const lan_ips = ARP_GET_LAN_IPS();
+		console.log( "Lan IPS === " );
+		console.log( lan_ips );
 		let google_ips = [];
 		for ( let i = 0; i < lan_ips.length; ++i ) {
 			//console.log( lan_ips[ i ][ "mac_address" ] );
@@ -118,6 +135,8 @@ function GET_GOOGLE_HOME_IPS() {
 				}
 			}
 		}
+		console.log( "Found These 'Google' devices from MAC address scheme" );
+		console.log( google_ips );
 		return google_ips;
 	}
 	catch( error ) { console.log( error ); return false; }
