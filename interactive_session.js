@@ -26,9 +26,11 @@ function CONNECT( google_home_ip ) {
 	return new Promise( async function( resolve , reject ) {
 		try {
 			if ( !google_home_ip ) {
-				google_home_ip = Utils.getGoogleHomeIPS();
-				if ( ! google_home_ip ) { resolve( false ); return false; }
-				google_home_ip = google_home_ip[ 0 ];
+				// google_home_ip = Utils.getGoogleHomeIPS();
+				// if ( ! google_home_ip ) { resolve( false ); return false; }
+				// google_home_ip = google_home_ip[ 0 ];
+
+				google_home_ip = Utils.getGoogleHomeIP();
 			}
 			if ( !google_home_ip ) { resolve( false ); return false; }
 			console.log( "Trying to Connect To: " + google_home_ip );

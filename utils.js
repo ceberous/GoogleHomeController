@@ -120,6 +120,24 @@ const GOOGLE_MAC_ADDRESS_PREFIXES = [
 	"f4:f5:e8" ,
 	"f8:8f:ca" ,
 ];
+
+function GET_GOOGLE_HOME_IP() {
+	try {
+		const default_gateway = child.execSync( `route -n | awk '$4 == "UG" {print $2}'` ).toString().trim();
+		const defualt_interface = child.execSync( `ip link | awk -F: '$0 !~ "lo|vir|wl|^[^0-9]"{print $2;getline}'` ).toString().trim();
+		const google_home_ip = child.execSync( `sudo nmap -sn ${ default_gateway }/24 | grep 'AD:B0' -A 1 | tail -1 | awk '{print $(NF)}'` ).toString().trim();
+
+		console.log( default_gateway );
+		console.log( defualt_interface );
+		console.log( google_home_ip );
+
+		return google_home_ip;
+	}
+	catch( error ) { console.log( error ); return false; }
+}
+module.exports.getGoogleHomeIP = GET_GOOGLE_HOME_IP;
+
+
 function GET_GOOGLE_HOME_IPS() {
 	try {
 		const lan_ips = ARP_GET_LAN_IPS();
