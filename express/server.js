@@ -30,7 +30,7 @@ module.exports.emitter = emitter;
 function LoadSession() {
 	return new Promise( function( resolve , reject ) {
 		try {
-			session = child_process.fork( "./interactive_session.js" );
+			session = child_process.fork( "../interactive_session.js" );
 			session.on( "message" , ( message ) => {
 				console.log( "Recieved Message from Worker: [ interactive_session.js ]" );
 				if ( message === "ready" ) {

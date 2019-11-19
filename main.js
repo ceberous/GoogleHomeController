@@ -30,7 +30,10 @@ function AWAIT_INPUT_INFINIT_LOOP() {
 			session.send( "playlist@@@" + url );
 		} ,
 		youtube: function( url ) {
-			session.send( "youtube-id@@@" + url );
+			session.send( "youtube@@@" + url );
+		} ,
+		resume: function( target ) {
+			session.send( "resume" );
 		} ,
 		pause: function( target ) {
 			session.send( "pause" );
@@ -51,7 +54,9 @@ function AWAIT_INPUT_INFINIT_LOOP() {
 		} ,
 		exit: function() {
 			session.send( "quit" );
-			return true;
+			setTimeout( () => {
+				return true;
+			} , 1000 );
 		} ,
 		quit: function() {
 			session.send( "quit" );

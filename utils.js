@@ -2,32 +2,33 @@ const process = require( "process" );
 const os = require( "os" );
 const path = require( "path" );
 const child = require( "child_process" );
+const defaultGateway = require( "default-gateway" );
 
 function sleep( ms ) { return new Promise( resolve => setTimeout( resolve , ms ) ); }
 module.exports.sleep = sleep;
 
 // netstat -rn
-function GET_DEFUALT_GATEWAY() {
-	try {
-		let output = child.spawnSync( 'netstat', [ '-r' , '-n' ] , { encoding: 'utf8' } );
-		output = output.stdout.trim();
-		const lines = output.split( "\n" );
-		for ( let i = 0; i < lines.length; ++i ) {
-			let items = lines[ i ].split( " " );
-			items = items.filter( x => x !== "" );
-			for ( let j = 0; j < items.length; ++j ) {
-				let item = items[ j ].replace( /\s/g , "" );
-				if ( item === "default" ) {
-					let default_gateway = items[ j + 1 ];
-					default_gateway = default_gateway.replace( /\s/g , "" );
-					return default_gateway;
-				}
-			}
-		}
-		return false;
-	}
-	catch( error ) { console.log( error ); return false; }
-}
+// function GET_DEFUALT_GATEWAY() {
+// 	try {
+// 		let output = child.spawnSync( 'netstat', [ '-r' , '-n' ] , { encoding: 'utf8' } );
+// 		output = output.stdout.trim();
+// 		const lines = output.split( "\n" );
+// 		for ( let i = 0; i < lines.length; ++i ) {
+// 			let items = lines[ i ].split( " " );
+// 			items = items.filter( x => x !== "" );
+// 			for ( let j = 0; j < items.length; ++j ) {
+// 				let item = items[ j ].replace( /\s/g , "" );
+// 				if ( item === "default" ) {
+// 					let default_gateway = items[ j + 1 ];
+// 					default_gateway = default_gateway.replace( /\s/g , "" );
+// 					return default_gateway;
+// 				}
+// 			}
+// 		}
+// 		return false;
+// 	}
+// 	catch( error ) { console.log( error ); return false; }
+// }
 
 // sudo nmap -sn 192.168.0.0/24
 // function NMAP_GET_LAN_IPS() {
@@ -58,54 +59,54 @@ function GET_DEFUALT_GATEWAY() {
 // arp -a
 // ? (192.168.0.20) at (incomplete) on en0 ifscope [ethernet]
 // ? (239.255.255.250) at 1:0:5e:7f:ff:fa on en0 ifscope permanent [ethernet]
-function ARP_GET_LAN_IPS() {
-	try {
+// function ARP_GET_LAN_IPS() {
+// 	try {
 
-		const interfaces = Object.keys( os.networkInterfaces() );
-		console.log( "Interfaces ==== " );
-		console.log( interfaces );
+// 		const interfaces = Object.keys( os.networkInterfaces() );
+// 		console.log( "Interfaces ==== " );
+// 		console.log( interfaces );
 
-		let results = [];
+// 		let results = [];
 
-		for( let j = 0; j < interfaces.length; ++j ) {
-			let output = child.spawnSync( 'arp', [ '-i' , interfaces[ j ] , '-a' ] , { encoding: 'utf8' } );
-			output = output.stdout.trim();
-			const lines = output.split( "\n" );
-			for ( let i = 0; i < lines.length; ++i ) {
-				let items = lines[ i ].split( " " );
-				items = items.filter( x => x !== "" );
-				items = items.map( x => x.replace( /\s/g , "" ) );
-				// //console.log( items );
-				// if ( !items[ i ][ 1 ] ) { console.log( "no 1 ??" ); continue; }
-				// if ( !items[ i ][ 3 ] ) { console.log( "no 3 ??" ); continue; }
-				// if ( items[ i ][ 3 ] === "(incomplete)" ) { console.log( "incomplete ??" ); continue; }
-				// if ( !items[ i ][ 5 ] ) { console.log( "no 5 ??" ); continue; }
+// 		for( let j = 0; j < interfaces.length; ++j ) {
+// 			let output = child.spawnSync( 'arp', [ '-i' , interfaces[ j ] , '-a' ] , { encoding: 'utf8' } );
+// 			output = output.stdout.trim();
+// 			const lines = output.split( "\n" );
+// 			for ( let i = 0; i < lines.length; ++i ) {
+// 				let items = lines[ i ].split( " " );
+// 				items = items.filter( x => x !== "" );
+// 				items = items.map( x => x.replace( /\s/g , "" ) );
+// 				// //console.log( items );
+// 				// if ( !items[ i ][ 1 ] ) { console.log( "no 1 ??" ); continue; }
+// 				// if ( !items[ i ][ 3 ] ) { console.log( "no 3 ??" ); continue; }
+// 				// if ( items[ i ][ 3 ] === "(incomplete)" ) { console.log( "incomplete ??" ); continue; }
+// 				// if ( !items[ i ][ 5 ] ) { console.log( "no 5 ??" ); continue; }
 
-				// if ( !items ) { continue; }
-				// if ( !items[ 1 ] ) { continue; }
-				if ( !!items[ 1 ] === false ) { continue; }
+// 				// if ( !items ) { continue; }
+// 				// if ( !items[ 1 ] ) { continue; }
+// 				if ( !!items[ 1 ] === false ) { continue; }
 
-				let ip = items[ 1 ].split( "(" );
-				if ( !ip ) { continue; }
-				if ( !ip[ 1 ] ) { continue; }
-				ip = ip[ 1 ].split( ")" );
-				if ( !ip ) { continue; }
-				if ( !ip[ 0 ] ) { continue; }
-				let mac_prefix = items[ 3 ].split( ":" );
-				mac_prefix = `${ mac_prefix[ 0 ] }:${ mac_prefix[ 1 ] }:${ mac_prefix[ 2 ] }`
-				results.push({
-					ip: ip[ 0 ] ,
-					mac_address: items[ 3 ] ,
-					mac_prefix: mac_prefix ,
-					device: items[ 5 ]
-				});
-			}
-		}
+// 				let ip = items[ 1 ].split( "(" );
+// 				if ( !ip ) { continue; }
+// 				if ( !ip[ 1 ] ) { continue; }
+// 				ip = ip[ 1 ].split( ")" );
+// 				if ( !ip ) { continue; }
+// 				if ( !ip[ 0 ] ) { continue; }
+// 				let mac_prefix = items[ 3 ].split( ":" );
+// 				mac_prefix = `${ mac_prefix[ 0 ] }:${ mac_prefix[ 1 ] }:${ mac_prefix[ 2 ] }`
+// 				results.push({
+// 					ip: ip[ 0 ] ,
+// 					mac_address: items[ 3 ] ,
+// 					mac_prefix: mac_prefix ,
+// 					device: items[ 5 ]
+// 				});
+// 			}
+// 		}
 
-		return results;
-	}
-	catch( error ) { console.log( error ); return false; }
-}
+// 		return results;
+// 	}
+// 	catch( error ) { console.log( error ); return false; }
+// }
 
 // Google Home Mac Address Masks
 const GOOGLE_MAC_ADDRESS_PREFIXES = [
@@ -121,21 +122,66 @@ const GOOGLE_MAC_ADDRESS_PREFIXES = [
 	"f8:8f:ca" ,
 ];
 
+function _google_home_ip_darwin() {
+	try {
+		const default_gateway = child.execSync( `netstat -rn -f inet | grep -A 1 "Gateway" | tail -1 | awk '{print $2}'` ).toString().trim();
+		console.log( `Default Gateway === ${ default_gateway }` );
+		const google_home_ip = child.execSync( `sudo nmap -sn ${ default_gateway }/24 | grep 'F4:F5:D8' -B 2 | head -1 | awk '{print $(NF)}'` ).toString().trim();
+		console.log( `Google Home IP === ${ google_home_ip }` );
+		return google_home_ip;
+	}
+	catch( error ) { console.log( error ); return; }
+}
+
+function _google_home_ip_linux() {
+	try {
+		const default_gateway = child.execSync( `netstat -rn -A inet | grep -A 1 "Gateway" | tail -1 | awk '{print $2}'` );
+		console.log( `Default Gateway === ${ default_gateway }` );
+		const google_home_ip = child.execSync( `sudo nmap -sn ${ default_gateway }/24 | grep 'F4:F5:D8' -B 2 | head -1 | awk '{print $(NF)}'` ).toString().trim();
+		console.log( `Google Home IP === ${ google_home_ip }` );
+		return google_home_ip;
+	}
+	catch( error ) { console.log( error ); return; }
+}
+
 function GET_GOOGLE_HOME_IP() {
 	try {
-		const default_gateway = child.execSync( `route -n | awk '$4 == "UG" {print $2}'` ).toString().trim();
-		const defualt_interface = child.execSync( `ip link | awk -F: '$0 !~ "lo|vir|wl|^[^0-9]"{print $2;getline}'` ).toString().trim();
-		const google_home_ip = child.execSync( `sudo nmap -sn ${ default_gateway }/24 | grep 'AD:B0' -A 1 | tail -1 | awk '{print $(NF)}'` ).toString().trim();
-
-		console.log( default_gateway );
-		console.log( defualt_interface );
-		console.log( google_home_ip );
-
+		let google_home_ip = false;
+		if ( process.platform === "darwin" ) {
+			google_home_ip = _google_home_ip_darwin();
+			if ( !google_home_ip ) { google_home_ip = _google_home_ip_darwin(); }
+			else if ( google_home_ip.indexOf( "." ) === -1 ) {
+				google_home_ip = _google_home_ip_darwin();
+			}
+		}
+		else if ( process.platform === "linux" ) {
+			google_home_ip = _google_home_ip_linux();
+			if ( !google_home_ip ) { google_home_ip = _google_home_ip_linux(); }
+			else if ( google_home_ip.indexOf( "." ) === -1 ) {
+				google_home_ip = _google_home_ip_linux();
+			}
+		}
 		return google_home_ip;
 	}
 	catch( error ) { console.log( error ); return false; }
 }
 module.exports.getGoogleHomeIP = GET_GOOGLE_HOME_IP;
+
+// function GET_GOOGLE_HOME_IP() {
+// 	try {
+// 		const default_gateway = child.execSync( `route -n | awk '$4 == "UG" {print $2}'` ).toString().trim();
+// 		const defualt_interface = child.execSync( `ip link | awk -F: '$0 !~ "lo|vir|wl|^[^0-9]"{print $2;getline}'` ).toString().trim();
+// 		const google_home_ip = child.execSync( `sudo nmap -sn ${ default_gateway }/24 | grep 'AD:B0' -A 1 | tail -1 | awk '{print $(NF)}'` ).toString().trim();
+
+// 		console.log( default_gateway );
+// 		console.log( defualt_interface );
+// 		console.log( google_home_ip );
+
+// 		return google_home_ip;
+// 	}
+// 	catch( error ) { console.log( error ); return false; }
+// }
+// module.exports.getGoogleHomeIP = GET_GOOGLE_HOME_IP;
 
 
 function GET_GOOGLE_HOME_IPS() {

@@ -9,6 +9,9 @@ process.on( "uncaughtException" , function( err ) {
 	console.trace();
 });
 
+// https://github.com/thibauts/node-castv2-client/issues/81#issuecomment-394654077
+
+// https://developers.google.com/cast/docs/reference/chrome/chrome.cast.media.Media#play
 
 // https://github.com/thibauts/node-castv2-client/blob/master/examples/basic.js
 const Client = require( "castv2-client" ).Client;
@@ -238,6 +241,30 @@ function STATUS() {
 	});
 }
 
+
+function RESUME() {
+	return new Promise( function( resolve , reject ) {
+		try {
+			CLIENT.getSessions(function(err, sessions) {
+				const session = sessions[0];
+				CLIENT.join(session, DefaultMediaReceiver, function(err, app) {
+					if (!app.media.currentSession){
+						app.getStatus(function() {
+							app.play();
+						});
+					} else {
+						app.play();
+					}
+					resolve();
+					return;
+				});
+			});
+			//emitter.emit( "pause" );
+		}
+		catch( error ) { console.log( error ); reject( error ); return; }
+	});
+}
+
 function PAUSE() {
 	return new Promise( function( resolve , reject ) {
 		try {
@@ -274,15 +301,33 @@ function PAUSE() {
 		if ( task === "youtube" ) {
 			if ( args ) {
 				const mp3_url = await Utils.getYoutubeDirectMP3Url( args );
+				console.log( mp3_url );
 				await LOAD_MP3( mp3_url );
 			}
 		}
 		else if ( task === "status" ) {
 			const status = await STATUS();
 		}
+		else if ( task === "resume" ) {
+			await RESUME();
+		}
 		else if ( task === "pause" ) {
 			//PAUSE();
-			CLIENT.sessionRequest({ type: 'PAUSE' }, callback);
+			// CLIENT.sessionRequest({ type: 'PAUSE' } , ()=>{
+			// 	console.log( "paused ??" );
+			// });
+			CLIENT.getSessions(function(err, sessions) {
+				const session = sessions[0];
+				CLIENT.join(session, DefaultMediaReceiver, function(err, app) {
+					if (!app.media.currentSession){
+						app.getStatus(function() {
+							app.pause();
+						});
+					} else {
+						app.pause();
+					}
+				});
+			});
 		}
 		else if ( task === "play" ) {
 			const status = await STATUS();

@@ -15,6 +15,7 @@
     "castv2-client": "^1.2.0",
     "child_process": "^1.0.2",
     "cors": "^2.8.5",
+    "default-gateway": "^5.0.5",
     "ejs": "^2.6.2",
     "events": "^3.0.0",
     "express": "^4.17.1",
