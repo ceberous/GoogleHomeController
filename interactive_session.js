@@ -13,6 +13,8 @@ process.on( "uncaughtException" , function( err ) {
 
 // https://developers.google.com/cast/docs/reference/chrome/chrome.cast.media.Media#play
 
+// m3u8
+
 // https://github.com/thibauts/node-castv2-client/blob/master/examples/basic.js
 const Client = require( "castv2-client" ).Client;
 const DefaultMediaReceiver = require( "castv2-client" ).DefaultMediaReceiver;

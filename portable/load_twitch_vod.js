@@ -99,6 +99,21 @@ function GET_GOOGLE_HOME_IP( default_mac_prefix="F4:F5:D8" ) {
 	catch( error ) { console.log( error ); return false; }
 }
 
+function GET_YOUTUBE_DIRECT_MP3_URL( youtube_url ) {
+	try {
+		console.log( "Finding Direct MP3 URL for: " + youtube_url );
+		let output = child_process.spawnSync( 'youtube-dl', [ '--extract-audio' , '--audio-format' , 'mp3' , '-g' , youtube_url ] , { encoding: 'utf8' } );
+		output = output.stdout.trim();
+		console.log( output );
+		const lines = output.split( "\n" );
+		if ( !lines ) { return false; }
+		if ( !lines[ 0 ] ) { return false; }
+		console.log( lines[ 0 ] );
+		return lines[ 0 ];
+	}
+	catch( error ) { console.log( error ); return false; }
+}
+
 let GoogleHomeClient;
 function CONNECT( google_home_ip ) {
 	return new Promise( async function( resolve , reject ) {
@@ -119,22 +134,26 @@ function CONNECT( google_home_ip ) {
 ( async ()=> {
 
 	const google_home_ip = GET_GOOGLE_HOME_IP();
+	const youtube_direct_mp3_url = GET_YOUTUBE_DIRECT_MP3_URL( process.argv[ 2 ] );
 
 	await CONNECT( google_home_ip );
+	console.log( "Trying to Play: " + youtube_direct_mp3_url );
 
-	//const seek_seconds = parseInt( process.argv[ 2 ] );
-	const seek_seconds = process.argv[ 2 ];
-	console.log( `Trying to Seek to: ${ seek_seconds } seconds` );
-
-	GoogleHomeClient.getSessions( ( err , sessions )=> {
-		const session = sessions[ 0 ];
-		GoogleHomeClient.join( session , DefaultMediaReceiver , ( err , app )=> {
-			if ( !app.media.currentSession ) {
-				app.getStatus( ()=> {
-					app.seek( seek_seconds );
-				});
-			} else {
-				app.seek( seek_seconds );
+	GoogleHomeClient.launch( DefaultMediaReceiver , ( err , player ) => {
+		const media_mp3 = {
+			contentId: youtube_direct_mp3_url ,
+			contentType: 'audio/m3u8' ,
+			//contentType: 'application/x-mpegURL' ,
+			streamType: 'BUFFERED' ,
+		};
+		player.on( 'status' , ( status ) => {
+			if ( status ) {
+				console.log( 'status broadcast playerState=%s' , status.playerState );
+			}
+		});
+		player.load( media_mp3 , { autoplay: true } , ( error , status ) => {
+			if ( status ) {
+				console.log( 'media loaded playerState=%s' , status.playerState );
 			}
 		});
 	});
