@@ -62,6 +62,15 @@ function GET_GOOGLE_HOME_IP( default_mac_prefix="F4:F5:D8" ) {
 		catch( error ) { console.log( error ); return; }
 	}
 
+	function _linux_fixed_part_2( interface="eth0" ) {
+		try {
+			const google_home_ip = child_process.execSync( `sudo arp-scan --interface=${ interface } --localnet | grep "f4:f5:d8:cc:ad:b0" | awk '{print $1}'` ).toString().trim();
+			console.log( `Google Home IP === ${ google_home_ip }` );
+			return google_home_ip;
+		}
+		catch( error ) { console.log( error ); return; }
+	}
+
 	function _linux_fixed() {
 		try {
 			const google_home_ip = child_process.execSync( `arp -ne | grep '${ default_mac_prefix.toLowerCase() }' | awk '{print $1}'` ).toString().trim();
@@ -73,10 +82,17 @@ function GET_GOOGLE_HOME_IP( default_mac_prefix="F4:F5:D8" ) {
 
 	function _linux() {
 		try {
-			const default_gateway = child_process.execSync( `netstat -rn -A inet | grep -A 1 "Gateway" | tail -1 | awk '{print $2}'` );
-			console.log( `Default Gateway === ${ default_gateway }` );
-			const google_home_ip = child_process.execSync( `sudo nmap -sn ${ default_gateway }/24 | grep '${ default_mac_prefix }' -B 2 | head -1 | awk '{print $(NF)}'` ).toString().trim();
-			console.log( `Google Home IP === ${ google_home_ip }` );
+			// const default_gateway = child_process.execSync( `netstat -rn -A inet | grep -A 1 "Gateway" | tail -1 | awk '{print $2}'` );
+			// console.log( `Default Gateway === ${ default_gateway }` );
+			const default_interface = child_process.execSync( `netstat -rn -A inet | grep -A 1 "Gateway" | tail -1 | awk '{print $(NF)}'` );
+			console.log( `Default Interface === ${ default_interface }` );
+			let google_home_ip = _linux_fixed();
+			if ( !google_home_ip ) {
+				google_home_ip = _linux_fixed_part_2( default_interface );
+			}
+			else if ( google_home_ip.indexOf( "." ) === -1 ) {
+				google_home_ip = _linux_fixed_part_2( default_interface );
+			}
 			return google_home_ip;
 		}
 		catch( error ) { console.log( error ); return; }
@@ -92,10 +108,10 @@ function GET_GOOGLE_HOME_IP( default_mac_prefix="F4:F5:D8" ) {
 			}
 		}
 		else if ( process.platform === "linux" ) {
-			google_home_ip = _linux_fixed();
-			if ( !google_home_ip ) { google_home_ip = _linux_fixed(); }
+			google_home_ip = _linux();
+			if ( !google_home_ip ) { google_home_ip = _linux(); }
 			else if ( google_home_ip.indexOf( "." ) === -1 ) {
-				google_home_ip = _linux_fixed();
+				google_home_ip = _linux();
 			}
 		}
 		console.log( "Google Home IP === " + google_home_ip );
