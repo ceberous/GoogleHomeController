@@ -16,10 +16,12 @@ app.engine( 'html' , require( "ejs" ).renderFile );
 
 // Set Static Folder
 app.use( express.static( path.join( __dirname , "views"  ) ) );
+//app.use( express.static( path.join( __dirname , "js"  ) ) );
+app.use( '/static' , express.static( path.join( __dirname , "js"  ) ) );
 
 // Setup Middleware
 //app.use( bodyParser.json() );
-app.use( bodyParser.urlencoded( { extended: false } ) );
+app.use( bodyParser.urlencoded( { extended: true } ) );
 
 
 // Cross-Origin Stuff
@@ -47,6 +49,10 @@ app.use( bodyParser.urlencoded( { extended: false } ) );
 // Main-Routes
 app.get( "/" , function( req , res , next ) {
     res.render( "index.html" );
+});
+
+app.get( "/form" , function( req , res , next ) {
+    res.render( "form_controller.html" );
 });
 
 // Commands-Routes

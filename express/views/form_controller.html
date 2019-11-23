@@ -1,0 +1,59 @@
+<html>
+<head>
+<!--<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>-->
+<script type="text/javascript" src="./jquery.min.js"></script>
+</head>
+
+<body align="center">
+<div align="center">
+<h1>Google Home Controller Utility</hh1>
+
+<form name="myForm" id="testForm" method="POST" action="/commands/load/youtube/url">
+URL: <input type="text" name="url" value="https://www.youtube.com/watch?v=efosxyYOhBQ" /> <br/>
+Seek Seconds: <input type="number" name="seek_seconds" value="2350" /> <br/>
+</form>
+
+<br>
+<form name="level" id="level" method="POST" action="/commands/set/volume">
+Volume Level: <input type="text" name="level" value="0.5" /> <br/>
+</form>
+
+<br/>
+<input type="button" id="submit1" value="Submit by Form ID" />
+<input type="button" id="submit2" value="Submit by Form Name" />
+<input type="button" id="submit3" value="Submit by Form Index" />
+<input type="button" id="submit4" value="Submit with Event Handler" />
+
+</div>
+</body>
+<script>
+$(document).ready(function()
+{
+    $("#submit1").click(function()
+    {
+        $("#testForm").submit();
+
+    });
+    $("#submit2").click(function()
+    {
+        $("form[name='myForm']").submit();
+    });
+    $("#submit3").click(function()
+    {
+        $("form:first").submit();
+
+    });
+
+    $("#submit4").click(function()
+    {
+        $("#testForm").submit(function()
+        {
+         alert('Form is submitting');
+         return true;
+        });
+        $("#testForm").submit(); //invoke form submission
+
+    });
+});
+</script>
+</html>

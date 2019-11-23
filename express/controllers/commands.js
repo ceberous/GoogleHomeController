@@ -47,12 +47,22 @@ module.exports.seek = async ( req , res )=> {
 };
 
 module.exports.load_youtube_url = async ( req , res )=> {
-	console.log( "GET --> /commands/load/youtube/url/" + req.params.url );
+	let url = req.params.url;
+	let seek_seconds = false;
+	if ( !!!req.body.url )	{
+		url = req.body.url;
+	}
+	if ( !!!req.body.seek_seconds ) {
+		seek_seconds = req.body.seek_seconds;
+	}
 	if ( req.params.seek_seconds ) {
-		await LoadYoutubeURLAndSeek( req.params.url , req.params.seek_seconds );
+		seek_seconds =  req.params.seek_seconds;
+	}
+	if ( seek_seconds ) {
+		await LoadYoutubeURLAndSeek( url , seek_seconds );
 	}
 	else {
-		await LoadYoutubeURL( req.params.url );
+		await LoadYoutubeURL( url );
 	}
 	const result = { "success": true };
 	res.status( 200 );
@@ -84,4 +94,14 @@ module.exports.set_volume = async ( req , res )=> {
 	const result = { "success": true };
 	res.status( 200 );
 	res.json( result );
+};
+
+module.exports.set_volume = async ( req , res )=> {
+	let level = req.params.level;
+	if ( !!!req.body.level ) {
+		level = req.body.level;
+	}
+	await SetVolume( level );
+	res.status( 200 );
+	res.redirect( '/form?success=true' );
 };
