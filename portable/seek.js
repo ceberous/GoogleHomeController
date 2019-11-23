@@ -136,6 +136,7 @@ function CONNECT( google_home_ip ) {
 			} else {
 				app.seek( seek_seconds );
 			}
+			process.exit( 1 );
 		});
 	});
 

@@ -133,6 +133,7 @@ function CONNECT( google_home_ip ) {
 			} else {
 				app.stop();
 			}
+			process.exit( 1 );
 		});
 	});
 

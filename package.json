@@ -21,6 +21,7 @@
     "express": "^4.17.1",
     "http": "0.0.0",
     "ip": "^1.1.5",
+    "jsonfile-obj-db": "^1.0.8",
     "minimist": "^1.2.0",
     "readline-sync": "^1.4.10"
   }

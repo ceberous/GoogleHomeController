@@ -43,7 +43,7 @@ function CONNECT() {
 function LOAD_YOUTUBE_URL_AND_SEEK( youtube_url , seek_seconds ) {
 	return new Promise( async function( resolve , reject ) {
 		try {
-			console.log( "Trying to Load Youtube URL: " + youtube_url );
+			console.log( "Trying to Load Youtube URL and Seek " + seek_seconds.toString() + " seconds" + " : " + youtube_url );
 			const youtube_direct_mp3_url = GenericUtils.getYoutubeDirectMP3Url( youtube_url );
 			await CONNECT();
 			if ( !GoogleHomeClient ) { resolve(); return; }

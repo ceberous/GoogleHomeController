@@ -44,7 +44,7 @@ function SET_VOLUME( volume_level ) {
 	return new Promise( async function( resolve , reject ) {
 		try {
 			await CONNECT();
-			console.log( `Trying to Seek to: ${ seek_seconds } seconds` );
+			console.log( `Trying to Set Volume to: ${ volume_level } seconds` );
 			if ( !GoogleHomeClient ) { resolve(); return; }
 			volume_level = parseFloat( volume_level );
 			GoogleHomeClient.setVolume( { level: volume_level } , ( error , status ) => {

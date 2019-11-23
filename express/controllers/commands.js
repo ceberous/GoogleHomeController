@@ -80,7 +80,8 @@ module.exports.get_volume = async ( req , res )=> {
 };
 module.exports.set_volume = async ( req , res )=> {
 	console.log( "GET --> /commands/volume/" + req.params.level );
-	await SetVolume( req.params.level )
+	await SetVolume( req.params.level );
+	const result = { "success": true };
 	res.status( 200 );
-	res.json( volume );
+	res.json( result );
 };

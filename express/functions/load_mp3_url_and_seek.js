@@ -15,26 +15,42 @@ function CONNECT() {
 			}
 			console.log( "Trying to Connect To: " + google_home_ip );
 			GoogleHomeClient = new Client();
-			try {
-				GoogleHomeClient.connect( google_home_ip , ()=> {
-					console.log( "connected ??" );
-					resolve();
-					return;
-				});
-			}
-			catch( error ) {
-				console.log( error );
-				ConfigFile.self[ "ip" ] = GenericUtils.getGoogleHomeIP();
-				ConfigFile.save();
-				console.log( "Trying to Connect To: " + google_home_ip );
-				GoogleHomeClient = new Client();
-				google_home_ip = ConfigFile.self[ "ip" ];
-				GoogleHomeClient.connect( google_home_ip , ()=> {
-					console.log( "connected ??" );
-					resolve();
-					return;
-				});
-			}
+			GoogleHomeClient.connect( google_home_ip , ( err , result )=> {
+				console.log( "connected ??" );
+			})
+			.then(function() {
+				console.log("we are then ??");
+				console.log( "we are done ??" );
+				resolve();
+				return;
+			}).catch(function(exception) {
+			  console.log('handler')
+			  // handle the exception
+			}).done( ( done )=> {
+				console.log( "we are done ??" );
+				resolve();
+				return;
+			});
+			// try {
+			// 	GoogleHomeClient.connect( google_home_ip , ()=> {
+			// 		console.log( "connected ??" );
+			// 		resolve();
+			// 		return;
+			// 	});
+			// }
+			// catch( error ) {
+			// 	console.log( error );
+			// 	ConfigFile.self[ "ip" ] = GenericUtils.getGoogleHomeIP();
+			// 	ConfigFile.save();
+			// 	console.log( "Trying to Connect To: " + google_home_ip );
+			// 	GoogleHomeClient = new Client();
+			// 	google_home_ip = ConfigFile.self[ "ip" ];
+			// 	GoogleHomeClient.connect( google_home_ip , ()=> {
+			// 		console.log( "connected ??" );
+			// 		resolve();
+			// 		return;
+			// 	});
+			// }
 		}
 		catch( error ) { console.log( error ); reject( error ); return; }
 	});

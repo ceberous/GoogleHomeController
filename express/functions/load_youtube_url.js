@@ -48,6 +48,7 @@ function LOAD_YOUTUBE_URL( youtube_url ) {
 			const youtube_direct_mp3_url = GenericUtils.getYoutubeDirectMP3Url( youtube_url );
 			await CONNECT();
 			if ( !GoogleHomeClient ) { resolve(); return; }
+			if ( GoogleHomeClient === null ) { resolve(); return; }
 			GoogleHomeClient.launch( DefaultMediaReceiver , ( err , player ) => {
 				const media_mp3 = {
 					contentId: youtube_direct_mp3_url ,

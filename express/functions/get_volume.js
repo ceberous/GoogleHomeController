@@ -48,7 +48,7 @@ function GET_VOLUME() {
 			if ( !GoogleHomeClient ) { resolve(); return; }
 			GoogleHomeClient.getVolume( ( error , status ) => {
 				console.log( status );
-				resolve();
+				resolve( status );
 				return;
 			});
 		}
