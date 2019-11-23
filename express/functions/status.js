@@ -48,15 +48,36 @@ function STATUS() {
 			await GenericUtils.sleep( 1000 );
 			GoogleHomeClient.getSessions( ( err , sessions )=> {
 				const session = sessions[ 0 ];
-				if ( !session ) { resolve(); return; }
+				if ( !session ) { resolve( { status: "IDLE" , volume_status: "UNKNOWN"  } ); return; }
 				GoogleHomeClient.join( session, DefaultMediaReceiver , ( err , app )=> {
-					if ( !app ) { resolve(); return; }
+					if ( !app ) { resolve( { status: "IDLE" , volume_status: "UNKNOWN"  } ); return; }
 					app.getStatus( ( error , status )=> {
+						let content_id = false;
+						let player_state = false;
+						let current_time = false;
+						let duration = false;
+						if ( status ) {
+							if ( status.contentId ) {
+								content_id = status.contentId;
+							}
+							if ( status.playerState ) {
+								player_state = status.playerState;
+							}
+							if ( status.currentTime ) {
+								current_time = status.currentTime;
+							}
+							if ( status.media ) {
+								if ( status.media.duration ) {
+									duration = status.media.duration;
+								}
+
+							}
+						}
 						GoogleHomeClient.getVolume( ( volume_error , volume_status ) => {
-							console.log( `\nMedia Source === ${ status[ "media" ][ "contentId" ] }` );
-							console.log( `Status === ${ status[ "playerState" ] }` );
-							console.log( `Current Time === ${ status[ "currentTime" ] }` );
-							console.log( `Duration === ${ status[ "media" ][ "duration" ] }` );
+							console.log( `\nMedia Source === ${ content_id }` );
+							console.log( `Status === ${ player_state }` );
+							console.log( `Current Time === ${ current_time }` );
+							console.log( `Duration === ${ duration }` );
 							console.log( `Volume === ` );
 							console.log(  volume_status );
 							resolve({

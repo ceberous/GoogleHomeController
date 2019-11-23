@@ -52,16 +52,14 @@ function STOP() {
 				GoogleHomeClient.join( session, DefaultMediaReceiver , ( err , app )=> {
 					if ( !app ) { resolve(); return; }
 					if ( !app.media.currentSession ) {
-						app.getStatus( ()=> {
-							app.stop();
-							resolve();
-							return;
-						});
-					} else {
-						app.stop();
 						resolve();
 						return;
 					}
+					app.getStatus( ()=> {
+						app.stop();
+						resolve();
+						return;
+					});
 				});
 			});
 		}
