@@ -97,9 +97,16 @@ function GET_GOOGLE_HOME_IP( default_mac_prefix="F4:F5:D8" ) {
 module.exports.getGoogleHomeIP = GET_GOOGLE_HOME_IP;
 
 
+// https://github.com/fluent-ffmpeg/node-fluent-ffmpeg
+// https://github.com/dohliam/cast-playlist
+// https://github.com/balloob/pychromecast
+// https://developers.google.com/cast/docs/media
+// https://developers.google.com/cast/docs/mpl/streaming_protocols
 // streamlink https://www.youtube.com/watch?v=ia-NryuCzoA best --stream-url
 // youtube-dl -g https://www.twitch.tv/chess
 // youtube-dl --extract-audio --audio-format mp3 -g $1
+// https://github.com/ytdl-org/youtube-dl/issues/18813
+// youtube-dl --console-title --hls-prefer-native --hls-use-mpegts -c --no-part --fixup never "https://5bd725165e3d4.streamlock.net/test/_definst_/mp3:TOEIC/Audio/19990.mp3/master.m3u8" -o foo.mp3
 
 function GET_YOUTUBE_DIRECT_MP3_URL( youtube_url ) {
 	try {

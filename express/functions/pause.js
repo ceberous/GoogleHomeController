@@ -40,30 +40,34 @@ function CONNECT() {
 	});
 }
 
+function _pause( session ) {
+	return new Promise( async function( resolve , reject ) {
+		try {
+			console.log( "Trying to _pause()" );
+			if ( !session ) { resolve(); return; }
+			GoogleHomeClient.join( session, DefaultMediaReceiver , ( err , app )=> {
+				if ( !app ) { resolve(); return; }
+				app.getStatus( ()=> {
+					app.pause();
+					resolve();
+					return;
+				});
+			});
+		}
+		catch( error ) { console.log( error ); reject( error ); return; }
+	});
+}
+
 function PAUSE() {
 	return new Promise( async function( resolve , reject ) {
 		try {
-
 			await CONNECT();
 			console.log( "Trying to Pause" );
 			if ( !GoogleHomeClient ) { resolve(); return; }
-			GoogleHomeClient.getSessions( ( err , sessions )=> {
-				const session = sessions[ 0 ];
-				if ( !session ) { resolve(); return; }
-				GoogleHomeClient.join( session, DefaultMediaReceiver , ( err , app )=> {
-					if ( !app ) { resolve(); return; }
-					if ( !app.media.currentSession ) {
-						app.getStatus( ()=> {
-							app.pause();
-							resolve();
-							return;
-						});
-					} else {
-						app.pause();
-						resolve();
-						return;
-					}
-				});
+			GoogleHomeClient.getSessions( async ( err , sessions )=> {
+				for ( let i = 0; i < sessions.length; ++i ) {
+					await _pause( sessions[ i ] );
+				}
 			});
 		}
 		catch( error ) { console.log( error ); reject( error ); return; }

@@ -40,27 +40,41 @@ function CONNECT() {
 	});
 }
 
+function _stop( session ) {
+	return new Promise( async function( resolve , reject ) {
+		try {
+			console.log( "Trying to _stop()" );
+			if ( !session ) { resolve(); return; }
+			GoogleHomeClient.join( session, DefaultMediaReceiver , ( err , app )=> {
+				if ( !app ) { resolve(); return; }
+				app.getStatus( ()=> {
+					app.stop();
+					resolve();
+					return;
+				});
+			});
+		}
+		catch( error ) { console.log( error ); reject( error ); return; }
+	});
+}
+
 function STOP() {
 	return new Promise( async function( resolve , reject ) {
 		try {
 			await CONNECT();
 			console.log( "Trying to Stop" );
 			if ( !GoogleHomeClient ) { resolve(); return; }
-			GoogleHomeClient.getSessions( ( err , sessions )=> {
-				const session = sessions[ 0 ];
-				if ( !session ) { resolve(); return; }
-				GoogleHomeClient.join( session, DefaultMediaReceiver , ( err , app )=> {
-					if ( !app ) { resolve(); return; }
-					if ( !app.media.currentSession ) {
-						resolve();
-						return;
-					}
-					app.getStatus( ()=> {
-						app.stop();
-						resolve();
-						return;
-					});
-				});
+
+			async function stop_all_sessions( sessions ) {
+				for ( let i = 0; i < sessions.length; ++i ) {
+					await _stop( sessions[ i ] );
+				}
+				resolve();
+				return;
+			}
+			GoogleHomeClient.getSessions( async ( err , sessions )=> {
+				console.log( sessions.length.toString() );
+				stop_all_sessions( sessions );
 			});
 		}
 		catch( error ) { console.log( error ); reject( error ); return; }
