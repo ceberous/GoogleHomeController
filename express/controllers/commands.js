@@ -49,10 +49,10 @@ module.exports.seek = async ( req , res )=> {
 module.exports.load_youtube_url = async ( req , res )=> {
 	let url = req.params.url;
 	let seek_seconds = false;
-	if ( !!!req.body.url )	{
+	if ( !!req.body.url )	{
 		url = req.body.url;
 	}
-	if ( !!!req.body.seek_seconds ) {
+	if ( !!req.body.seek_seconds ) {
 		seek_seconds = req.body.seek_seconds;
 	}
 	if ( req.params.seek_seconds ) {
@@ -98,7 +98,7 @@ module.exports.set_volume = async ( req , res )=> {
 
 module.exports.set_volume = async ( req , res )=> {
 	let level = req.params.level;
-	if ( !!!req.body.level ) {
+	if ( !!req.body.level ) {
 		level = req.body.level;
 	}
 	await SetVolume( level );
