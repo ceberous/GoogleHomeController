@@ -1,48 +1,86 @@
-const emitter = require( "../server.js" ).emitter;
+const Status = require( "../functions/status.js" );
+const Pause = require( "../functions/pause.js" );
+const Resume = require( "../functions/resume.js" );
+const Stop = require( "../functions/stop.js" );
+const Seek = require( "../functions/seek.js" );
+const GetVolume = require( "../functions/get_volume.js" );
+const SetVolume = require( "../functions/set_volume.js" );
+const LoadYoutubeURL = require( "../functions/load_youtube_url.js" );
+const LoadYoutubeURLAndSeek = require( "../functions/load_youtube_url_and_seek.js" );
+const LoadMP3URL = require( "../functions/load_mp3_url.js" );
+const LoadMP3URLAndSeek = require( "../functions/load_mp3_url_and_seek.js" );
 
-module.exports.status = async ( req , res ) => {
+module.exports.status = async ( req , res )=> {
 	console.log( "GET --> /commands/status/" );
-	emitter.emit( "session-command" , "status" );
-	const result = {};
-	//const result = await require( "" ).status();
+	const status = await Status();
+	console.log( status );
 	res.status( 200 );
-	res.json( result );
+	res.json( status );
 };
-module.exports.pause = async ( req , res ) => {
+module.exports.pause = async ( req , res )=> {
 	console.log( "GET --> /commands/pause/" );
-	emitter.emit( "session-command" , "pause" );
-	const result = {};
+	await Pause();
+	const result = { "success": true };
 	res.status( 200 );
 	res.json( result );
 };
-module.exports.stop = async ( req , res ) => {
+module.exports.stop = async ( req , res )=> {
 	console.log( "GET --> /commands/stop/" );
-	emitter.emit( "session-command" , "stop" );
-	const result = {};
+	await Stop();
+	const result = { "success": true };
+	res.status( 200 );
+	res.json( result );
+};
+module.exports.resume = async ( req , res )=> {
+	console.log( "GET --> /commands/resume/" );
+	await Resume();
+	const result = { "success": true };
+	res.status( 200 );
+	res.json( result );
+};
+module.exports.seek = async ( req , res )=> {
+	console.log( "GET --> /commands/resume/" );
+	await Seek( req.params.seconds );
+	const result = { "success": true };
 	res.status( 200 );
 	res.json( result );
 };
 
-module.exports.quit = async ( req , res ) => {
-	console.log( "GET --> /commands/quit/" );
-	emitter.emit( "session-command" , "quit" );
-	const result = {};
+module.exports.load_youtube_url = async ( req , res )=> {
+	console.log( "GET --> /commands/load/youtube/url/" + req.params.url );
+	if ( req.params.seek_seconds ) {
+		await LoadYoutubeURLAndSeek( req.params.url , req.params.seek_seconds );
+	}
+	else {
+		await LoadYoutubeURL( req.params.url );
+	}
+	const result = { "success": true };
 	res.status( 200 );
 	res.json( result );
 };
 
-module.exports.youtube = async ( req , res ) => {
-	console.log( "GET --> /commands/youtube/" + req.params.url );
-	emitter.emit( "session-command" , "youtube@@@" + req.params.url );
-	const result = {};
+module.exports.load_mp3_url = async ( req , res )=> {
+	console.log( "GET --> /commands/load/mp3/url/" + req.params.url );
+	if ( req.params.seek_seconds ) {
+		await LoadMP3URLAndSeek( req.params.url , req.params.seek_seconds );
+	}
+	else {
+		await LoadMP3URL( req.params.url );
+	}
+	const result = { "success": true };
 	res.status( 200 );
 	res.json( result );
 };
 
-module.exports.volume = async ( req , res ) => {
+module.exports.get_volume = async ( req , res )=> {
 	console.log( "GET --> /commands/volume/" + req.params.level );
-	emitter.emit( "session-command" , "volume@@@" + req.params.level );
-	const result = {};
+	const volume = await GetVolume();
 	res.status( 200 );
-	res.json( result );
+	res.json( volume );
+};
+module.exports.set_volume = async ( req , res )=> {
+	console.log( "GET --> /commands/volume/" + req.params.level );
+	await SetVolume( req.params.level )
+	res.status( 200 );
+	res.json( volume );
 };

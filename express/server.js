@@ -1,72 +1,40 @@
 const process = require( "process" );
+const http = require( "http" )
+const ip = require( "ip" );
+const JFODB = require( "jsonfile-obj-db" );
 
-let session;
-let app;
-let server;
-
-function CLEAN_EXIT( ...args ) {
-	try{
-		console.log( "CLEAN_EXIT()" );
-		try { session.kill( "SIGINT" ); }
-		catch( error ) {}
-		console.log( args );
-		console.trace();
-		process.exit( 1 );
-	}
-	catch( error ) { console.log( error ); return; }
-}
-process.on( "unhandledRejection" , CLEAN_EXIT );
-process.on( "uncaughtException" , CLEAN_EXIT );
-process.on( "SIGINT" , CLEAN_EXIT );
-process.on( "SIGTERM" , CLEAN_EXIT );
+process.on( "unhandledRejection" , function( reason , p ) {
+	console.error( reason, "Unhandled Rejection at Promise" , p );
+	console.trace();
+});
+process.on( "uncaughtException" , function( err ) {
+	console.error( err , "Uncaught Exception thrown" );
+	console.trace();
+});
 
 const port = process.env.PORT || 6969;
-const ip = require( "ip" );
-
-const child_process = require( "child_process" );
-const emitter = new ( require( "events" ).EventEmitter );
-module.exports.emitter = emitter;
-
-function LoadSession() {
-	return new Promise( function( resolve , reject ) {
-		try {
-			session = child_process.fork( "../interactive_session.js" );
-			session.on( "message" , ( message ) => {
-				console.log( "Recieved Message from Worker: [ interactive_session.js ]" );
-				if ( message === "ready" ) {
-					resolve();
-					return;
-				}
-			});
-			emitter.on( "session-command" , ( command ) => {
-				console.log( `emitter.on( "session-command" , ${ command } )` );
-				session.send( command );
-			});
-		}
-		catch( error ) { console.log( error ); reject( error ); return; }
-	});
-}
-
-function LoadServer() {
-	return new Promise( function( resolve , reject ) {
-		try {
-			app = require( "./app.js" );
-			server = require( "http" ).createServer( app );
-			server.listen( port , () => {
-				const localIP = ip.address();
-				console.log( "\tServer Started on :" );
-				console.log( "\thttp://" + localIP + ":" + port );
-				console.log( "\t\t or" );
-				console.log( "\thttp://localhost:" + port );
-			});
-			resolve();
-			return;
-		}
-		catch( error ) { console.log( error ); reject( error ); return; }
-	});
-}
+const express_app = require( "./express_app.js" );
+const GenericUtils = require( "./generic_utils.js" );
 
 ( async ()=> {
-	await LoadSession();
-	await LoadServer();
+	const config_file = new JFODB( "last_known_google_home" );
+	if ( !config_file.self ) { config_file.self = {}; config_file.save(); }
+	module.exports.config_file = config_file;
+
+	if ( !config_file.self[ "mac_address_prefix" ] ) {
+		config_file.self[ "mac_address_prefix" ] = "F4:F5:D8";
+	}
+	if ( !config_file.self[ "ip" ] ) {
+		config_file.self[ "ip" ] = GenericUtils.getGoogleHomeIP();
+		config_file.save();
+	}
+
+	const server = http.createServer( express_app );
+	server.listen( port , () => {
+		const localIP = ip.address();
+		console.log( "\tServer Started on :" );
+		console.log( "\thttp://" + localIP + ":" + port );
+		console.log( "\t\t or" );
+		console.log( "\thttp://localhost:" + port );
+	});
 })();
