@@ -62,6 +62,15 @@ function GET_GOOGLE_HOME_IP( default_mac_prefix="F4:F5:D8" ) {
 		catch( error ) { console.log( error ); return; }
 	}
 
+	function _linux_fixed() {
+		try {
+			const google_home_ip = child_process.execSync( `arp -ne | grep '${ default_mac_prefix.toLowerCase() }' | awk '{print $1}'` ).toString().trim();
+			console.log( `Google Home IP === ${ google_home_ip }` );
+			return google_home_ip;
+		}
+		catch( error ) { console.log( error ); return; }
+	}
+
 	function _linux() {
 		try {
 			const default_gateway = child_process.execSync( `netstat -rn -A inet | grep -A 1 "Gateway" | tail -1 | awk '{print $2}'` );
@@ -83,10 +92,10 @@ function GET_GOOGLE_HOME_IP( default_mac_prefix="F4:F5:D8" ) {
 			}
 		}
 		else if ( process.platform === "linux" ) {
-			google_home_ip = _linux();
-			if ( !google_home_ip ) { google_home_ip = _linux(); }
+			google_home_ip = _linux_fixed();
+			if ( !google_home_ip ) { google_home_ip = _linux_fixed(); }
 			else if ( google_home_ip.indexOf( "." ) === -1 ) {
-				google_home_ip = _linux();
+				google_home_ip = _linux_fixed();
 			}
 		}
 		console.log( "Google Home IP === " + google_home_ip );
