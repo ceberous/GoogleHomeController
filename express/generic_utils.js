@@ -84,7 +84,7 @@ function GET_GOOGLE_HOME_IP( default_mac_prefix="F4:F5:D8" ) {
 		try {
 			// const default_gateway = child_process.execSync( `netstat -rn -A inet | grep -A 1 "Gateway" | tail -1 | awk '{print $2}'` );
 			// console.log( `Default Gateway === ${ default_gateway }` );
-			const default_interface = child_process.execSync( `netstat -rn -A inet | grep -A 1 "Gateway" | tail -1 | awk '{print $(NF)}'` );
+			const default_interface = child_process.execSync( `netstat -rn -A inet | grep -A 1 "Gateway" | tail -1 | awk '{print $(NF)}'` ).toString().trim();
 			console.log( `Default Interface === ${ default_interface }` );
 			let google_home_ip = _linux_fixed();
 			if ( !google_home_ip ) {
