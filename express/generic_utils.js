@@ -129,6 +129,8 @@ function GET_YOUTUBE_DIRECT_MP3_URL( youtube_url ) {
 		// console.log( lines[ 0 ] );
 		// return lines[ 0 ];
 		const direct_url = child_process.execSync( `youtube-dl --extract-audio --audio-format mp3 -g ${ youtube_url }` ).toString().trim();
+		console.log( direct_url );
+		return direct_url;
 	}
 	catch( error ) { console.log( error ); return false; }
 }
