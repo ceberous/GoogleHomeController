@@ -121,13 +121,14 @@ module.exports.getGoogleHomeIP = GET_GOOGLE_HOME_IP;
 function GET_YOUTUBE_DIRECT_MP3_URL( youtube_url ) {
 	try {
 		console.log( "Finding Direct MP3 URL for: " + youtube_url );
-		let output = child_process.spawnSync( 'youtube-dl', [ '--extract-audio' , '--audio-format' , 'mp3' , '-g' , youtube_url ] , { encoding: 'utf8' } );
-		output = output.stdout.trim();
-		const lines = output.split( "\n" );
-		if ( !lines ) { return false; }
-		if ( !lines[ 0 ] ) { return false; }
-		console.log( lines[ 0 ] );
-		return lines[ 0 ];
+		// let output = child_process.spawnSync( 'youtube-dl', [ '--extract-audio' , '--audio-format' , 'mp3' , '-g' , youtube_url ] , { encoding: 'utf8' } );
+		//output = output.stdout.trim();
+		// const lines = output.split( "\n" );
+		// if ( !lines ) { return false; }
+		// if ( !lines[ 0 ] ) { return false; }
+		// console.log( lines[ 0 ] );
+		// return lines[ 0 ];
+		const direct_url = child_process.execSync( `youtube-dl --extract-audio --audio-format mp3 -g ${ youtube_url }` ).toString().trim();
 	}
 	catch( error ) { console.log( error ); return false; }
 }
